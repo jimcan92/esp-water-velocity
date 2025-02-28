@@ -72,7 +72,7 @@ For the main ESP32:
 2. Use the password: `00000000`.
 3. Open a web browser and enter `192.168.4.1` in the address bar.
    
-   <img src="images/remote_web_server.jpg" alt="Remote Web Server" height="600">
+   <img src="images/main_web_server.jpg" alt="Remote Web Server" height="600">
 4. **Pipe Depth**: Use the calibrate button to automatically callibrate the pipe depth.
 5. **ESP Remote Status**: Indicates if the remote ESP32 is active
 6. **Water Level**: Displays current water level in `mm`
