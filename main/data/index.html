@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ESP32 Main</title>
+    <style>
+      html {
+        box-sizing: border-box;
+        font-size: 16px;
+      }
+
+      *,
+      *:before,
+      *:after {
+        box-sizing: inherit;
+      }
+
+      body,
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      ol,
+      ul {
+        margin: 0;
+        padding: 0;
+        font-weight: normal;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .status-box {
+        /* margin: 10px; */
+        margin: 0;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 8px;
+
+        .status-content {
+          align-items: start;
+          width: 100%;
+          gap: 8px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          display: flex;
+          flex-direction: column;
+          padding: 8px;
+        }
+      }
+
+      button {
+        border: none;
+        background-color: #007bff;
+        color: white;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 16px;
+        border-radius: 4px;
+        margin: 0;
+      }
+
+      input {
+        /* border: none; */
+        border: 1px solid #007bff;
+        outline: #007bff;
+        /* color: white; */
+        padding: 10px 20px;
+        /* cursor: pointer; */
+        font-size: 16px;
+        border-radius: 4px;
+        margin: 0;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: start;
+        padding: 8px;
+
+        .input {
+          display: flex;
+          gap: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h2><b>ESP32 Main</b></h2>
+    <div class="status-box">
+      <p><b>Status</b></p>
+      <div class="status-content">
+        <p><strong>Pipe Depth:</strong> <span id="pipe_depth">0</span></p>
+        <p>
+          <strong>ESP Remote:</strong>
+          <span id="esp_remote_active">Inactive</span>
+        </p>
+        <p><strong>Water Level:</strong> <span id="water_level">0</span></p>
+        <p><strong>Velocity:</strong> <span id="velocity">0</span></p>
+        <p>
+          <strong>ESP Remote Water Level:</strong>
+          <span id="remote_water_level">0</span>
+        </p>
+        <p>
+          <strong>Flowing:</strong>
+          <span id="flowing">False</span>
+        </p>
+        <p>
+          <strong>Time Taken:</strong>
+          <span id="time">0</span>
+        </p>
+      </div>
+    </div>
+
+    <form action="/set_slope" method="POST" class="field">
+      <label for="slope">Slope</label>
+      <div class="input">
+        <input type="text" name="slope" id="slope" step="0.0000001" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <form action="/set_numbers" method="POST" class="field">
+      <label for="numbers">Set numbers to send warnings to</label>
+      <div class="input">
+        <input type="text" name="numbers" id="numbers" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <form action="/set_warning_threshold" method="POST" class="field">
+      <label for="warning_threshold">Warning velocity threshold (m/s)</label>
+      <div class="input">
+        <input type="text" name="warning_threshold" id="warning_threshold" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <form action="/set_critical_threshold" method="POST" class="field">
+      <label for="critical_threshold">Critical velocity threshold (m/s)</label>
+      <div class="input">
+        <input type="text" name="critical_threshold" id="critical_threshold" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <form action="/calibrate" method="GET" class="field">
+      <button type="submit">Calibrate Pipe Depth</button>
+    </form>
+
+    <script>
+      function updateStatus() {
+        fetch("/status")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("pipe_depth").innerText =
+              data.pipe_depth + " mm";
+            document.getElementById("water_level").innerText =
+              data.water_level + " mm";
+            document.getElementById("velocity").innerText =
+              data.velocity + " m/s";
+            document.getElementById("remote_water_level").innerText =
+              data.esp_remote_active ? data.remote_water_level + " mm" : "N/A";
+            document.getElementById("esp_remote_active").innerText =
+              data.esp_remote_active;
+            document.getElementById("flowing").innerText = data.flowing;
+            document.getElementById("time").innerText = data.time + " s";
+          })
+          .catch((error) => console.error("Error fetching status:", error));
+      }
+
+      // Fetch updates every 3 seconds
+      setInterval(updateStatus, 1000);
+
+      (() => {
+        fetch("/initial_values")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("numbers").value = data.numbers;
+            document.getElementById("warning_threshold").value =
+              data.warning_threshold;
+            document.getElementById("critical_threshold").value =
+              data.critical_threshold;
+            document.getElementById("slope").value = data.slope;
+          })
+          .catch((error) => console.error("Error fetching status:", error));
+      })();
+
+      // Initial load
+      updateStatus();
+
+      async function sendData(url, data) {
+        try {
+          const response = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(data),
+          });
+
+          const text = await response.text();
+          alert(text);
+        } catch (error) {
+          console.error("Error:", error);
+        }
+      }
+
+      document
+        .querySelector('form[action="/set_numbers"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_numbers", {
+            numbers: document.getElementById("numbers").value,
+          });
+        });
+
+      document
+        .querySelector('form[action="/set_warning_threshold"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_warning_threshold", {
+            warning_threshold:
+              document.getElementById("warning_threshold").value,
+          });
+        });
+
+      document
+        .querySelector('form[action="/set_critical_threshold"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_critical_threshold", {
+            critical_threshold:
+              document.getElementById("critical_threshold").value,
+          });
+        });
+
+      document
+        .querySelector('form[action="/set_slope"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_slope", {
+            slope: document.getElementById("slope").value,
+          });
+        });
+    </script>
+  </body>
+</html>
