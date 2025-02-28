@@ -60,10 +60,10 @@ To calibrate the remote ESP32:
 1. Connect to the **ESP32_Remote** Wi-Fi network.
 2. Use the password: `00000001`.
 3. Open a web browser and enter the device's IP address.
-   ![Remote Web Server](images/remote_web_server.jpg)
-4. **Pipe Depth**: Use the calibrate button to automatically callibrate the pipe depth.
-5. **Water Level**: Displays current water level at remote sensor
-6. **ESP Main Status**: Indicates if the main ESP32 is active
+   <img src="images/remote_web_server.jpg" alt="Remote Web Server" height="600">
+5. **Pipe Depth**: Use the calibrate button to automatically callibrate the pipe depth.
+6. **Water Level**: Displays current water level at remote sensor
+7. **ESP Main Status**: Indicates if the main ESP32 is active
 
 For the main ESP32:
 
