@@ -133,6 +133,22 @@
       </div>
     </form>
 
+    <form action="/set_rough" method="POST" class="field">
+      <label for="rough">Roughness Coefficient</label>
+      <div class="input">
+        <input type="text" name="rough" id="rough" step="0.001" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
+    <form action="/set_pipe_dia" method="POST" class="field">
+      <label for="pipe_dia">Pipe Diameter</label>
+      <div class="input">
+        <input type="text" name="pipe_dia" id="pipe_dia" />
+        <button type="submit">Save</button>
+      </div>
+    </form>
+
     <form action="/set_numbers" method="POST" class="field">
       <label for="numbers">Set numbers to send warnings to</label>
       <div class="input">
@@ -195,6 +211,8 @@
             document.getElementById("critical_threshold").value =
               data.critical_threshold;
             document.getElementById("slope").value = data.slope;
+            document.getElementById("rough").value = data.rough;
+            document.getElementById("pipe_dia").value = data.pipe_dia;
           })
           .catch((error) => console.error("Error fetching status:", error));
       })();
@@ -252,6 +270,22 @@
           event.preventDefault();
           sendData("/set_slope", {
             slope: document.getElementById("slope").value,
+          });
+        });
+      document
+        .querySelector('form[action="/set_rough"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_rough", {
+            rough: document.getElementById("rough").value,
+          });
+        });
+      document
+        .querySelector('form[action="/set_pipe_dia"]')
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          sendData("/set_pipe_dia", {
+            pipe_dia: document.getElementById("pipe_dia").value,
           });
         });
     </script>

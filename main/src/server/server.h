@@ -21,6 +21,8 @@ extern HCSR04 hcsr04;
 extern ESPNow espNow;
 extern float velocity;
 extern float slope;
+extern float rough;
+extern float pipeDia;
 
 class RemoteServer
 {
@@ -37,6 +39,8 @@ private:
     static void handleSetWarningThreshold();
     static void handleSetCriticalThreshold();
     static void handleSetSlope();
+    static void handleSetRough();
+    static void handleSetPipeDia();
     static WebServer server;
 };
 

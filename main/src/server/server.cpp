@@ -19,6 +19,8 @@ void RemoteServer::init()
     server.on("/status", HTTP_GET, handleStatus);
     server.on("/set_numbers", HTTP_POST, handleSetNumbers);
     server.on("/set_slope", HTTP_POST, handleSetSlope);
+    server.on("/set_rough", HTTP_POST, handleSetRough);
+    server.on("/set_pipe_dia", HTTP_POST, handleSetPipeDia);
     server.on("/set_warning_threshold", HTTP_POST, handleSetWarningThreshold);
     server.on("/set_critical_threshold", HTTP_POST, handleSetCriticalThreshold);
     server.on("/initial_values", HTTP_GET, handleSetInitialValues);
@@ -77,7 +79,9 @@ void RemoteServer::handleSetInitialValues()
     json += "\"numbers\": \"" + String(phoneNumbers) + "\",";
     json += "\"warning_threshold\": \"" + String(warningThreshold) + "\",";
     json += "\"critical_threshold\": \"" + String(criticalThreshold) + "\",";
-    json += "\"slope\": \"" + String(slope, 7) + "\"";
+    json += "\"slope\": \"" + String(slope, 7) + "\",";
+    json += "\"rough\": \"" + String(rough, 3) + "\",";
+    json += "\"pipe_dia\": \"" + String(pipeDia) + "\"";
     json += "}";
 
     server.send(200, "application/json", json);
@@ -107,7 +111,35 @@ void RemoteServer::handleSetSlope()
     }
     else
     {
-        server.send(400, "text/plain", "Missing 'numbers' parameter");
+        server.send(400, "text/plain", "Missing 'slope' parameter");
+    }
+}
+
+void RemoteServer::handleSetRough()
+{
+    if (server.hasArg("rough"))
+    {
+        rough = server.arg("rough").toFloat();
+        preferences.putFloat("rough", rough);
+        server.send(200, "text/plain", "Roughness updated successfully");
+    }
+    else
+    {
+        server.send(400, "text/plain", "Missing 'rough' parameter");
+    }
+}
+
+void RemoteServer::handleSetPipeDia()
+{
+    if (server.hasArg("pipe_dia"))
+    {
+        pipeDia = server.arg("pipe_dia").toFloat();
+        preferences.putFloat("pipe_dia", pipeDia);
+        server.send(200, "text/plain", "Pipe diameter updated successfully");
+    }
+    else
+    {
+        server.send(400, "text/plain", "Missing 'pipe_dia' parameter");
     }
 }
 

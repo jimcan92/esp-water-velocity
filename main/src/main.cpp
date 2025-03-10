@@ -23,6 +23,8 @@ Velocity velocityCalculator;
 
 ESPNowData myData;
 
+float pipeDia = 76.6;
+float rough = 0.07;
 float slope = 0.0666667; // 1/15
 float pipeDepth = 70;    // mm
 float waterLevel = 0.0;
@@ -50,6 +52,8 @@ void setup()
   warningThreshold = preferences.getFloat("warning", 10.0);
   criticalThreshold = preferences.getFloat("critical", 20.0);
   slope = preferences.getFloat("slope", 0.0666667);
+  rough = preferences.getFloat("rough", 0.07);
+  pipeDia = preferences.getFloat("pipe_dia", 76.6);
 
   hcsr04.init();
   espNow.init();
